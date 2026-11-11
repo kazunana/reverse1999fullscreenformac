@@ -1,0 +1,17 @@
+# 编译产物
+build/
+*.o
+*.dylib
+
+# 本地分析报告（extract.py 生成）
+report.json
+
+# 游戏提取物 —— 绝对不要提交
+UnityFramework
+global-metadata.dat
+*.ipa
+Payload/
+report/
+
+# 从游戏 AssetBundle 扫出来的资源路径清单（属于游戏数据）
+bundle_paths.json
