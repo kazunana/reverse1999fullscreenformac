@@ -118,10 +118,13 @@ ZProj.ScreenAdaption（纯代码静态类，不在任何 AssetBundle 里）
 
 ## 4. 快速开始
 
+首次安装请在 clone 后双击仓库根目录的 [guide.html](guide.html)。按页面提示安装 PlayCover、导入游戏，再双击「安装.command」。页面也包含完整卸载步骤。
+
 先装好 PlayCover 和 Xcode Command Line Tools，在 PlayCover 中导入游戏一次。已经导入的副本可直接复用。以下命令在仓库目录运行，仅部署到 PlayCover 容器。
 
 ```bash
 ./r1999 deploy          # 编译、检查游戏版本、补齐输入插件并签名部署
+./r1999 install         # 在 /Applications 建立指向现有游戏的 Finder 入口（只需一次）
 ./r1999 start           # 启动现有游戏
 ./r1999 verify          # 检查组件、签名和链接
 ./r1999 update          # 快进更新当前 Git 分支，然后重新部署

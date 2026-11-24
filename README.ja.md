@@ -122,6 +122,7 @@ PlayCover と Xcode Command Line Tools を用意し、PlayCover にゲームを�
 
 ```bash
 ./r1999 deploy
+./r1999 install  # /Applications に Finder 用のリンクを一度作成
 ./r1999 start
 ./r1999 verify
 ./r1999 update

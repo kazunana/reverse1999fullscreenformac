@@ -4,6 +4,36 @@ root="$(cd "$(dirname "$0")" && pwd)"
 app="${PC_APP:-${PLAYCOVER_HOME:-$HOME/Library/Containers/io.playcover.PlayCover}/Applications/${BUNDLE_ID:-com.bluepoch.m.reverse1999}.app}"
 case "${1:-help}" in
     deploy) exec "$root/build.sh" --all ;;
+    install|uninstall)
+        directory="${APPLICATIONS_DIR:-/Applications}"
+        shortcut="$directory/重返未来：1999（PlayCover）.app"
+        target="$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$app")"
+        if [[ "$1" == uninstall ]]; then
+            if [[ ! -e "$shortcut" && ! -L "$shortcut" ]]; then
+                echo "Finder 入口已移除。"
+                exit 0
+            fi
+            [[ -L "$shortcut" && "$(readlink "$shortcut")" == "$target" ]] || {
+                echo "同名项目指向别处，请在 Finder 检查：$shortcut" >&2
+                exit 1
+            }
+            unlink "$shortcut"
+            echo "已移除 Finder 入口。游戏本体和数据仍可通过 PlayCover 管理。"
+            exit 0
+        fi
+        [[ -d "$app" && -f "$app/Info.plist" ]] || { echo "请先用 PlayCover 导入游戏" >&2; exit 1; }
+        if [[ -L "$shortcut" && "$(readlink "$shortcut")" == "$target" ]]; then
+            echo "应用程序入口已就绪：$shortcut"
+            exit 0
+        fi
+        if [[ -e "$shortcut" || -L "$shortcut" ]]; then
+            echo "已有同名文件，请检查：$shortcut" >&2
+            exit 1
+        fi
+        # Use symlink(2) so an existing directory can never receive a nested link.
+        python3 -c 'import os, sys; os.symlink(sys.argv[1], sys.argv[2])' "$target" "$shortcut"
+        echo "可以从 Finder 双击启动：$shortcut"
+        ;;
     start) [[ -d "$app" ]] || { echo "请先用 PlayCover 导入游戏" >&2; exit 1; }
            exec open "$app" ;;
     update) git -C "$root" pull --ff-only
@@ -21,6 +51,6 @@ case "${1:-help}" in
         echo "按键映射已设为 ${enabled}，完全退出游戏后重新启动生效。"
         ;;
     verify) exec "$root/build.sh" --verify ;;
-    -h|--help|help) echo "用法: ./r1999 {deploy|start|update|verify|controls {native|mapped|status}}" ;;
+    -h|--help|help) echo "用法: ./r1999 {deploy|install|uninstall|start|update|verify|controls {native|mapped|status}}" ;;
     *) echo "未知命令: $1" >&2; exit 2 ;;
 esac

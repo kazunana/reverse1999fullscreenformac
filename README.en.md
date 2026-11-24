@@ -122,6 +122,7 @@ Install PlayCover and the Xcode Command Line Tools, then import the game once in
 
 ```bash
 ./r1999 deploy
+./r1999 install  # One-time Finder shortcut in /Applications
 ./r1999 start
 ./r1999 verify
 ./r1999 update

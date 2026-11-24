@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>重返未来：1999 · Mac 安装手册</title>
+<style>
+:root{--ink:#1c3029;--green:#285743;--paper:#f6f4ec;--line:#cfcec1;--soft:#e7ecdf;--mono:"SFMono-Regular",Menlo,monospace;color-scheme:light}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 "PingFang SC","Hiragino Sans GB",sans-serif}a{color:var(--green);text-underline-offset:4px}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #cf8735;outline-offset:4px}
+header{background:#183a30;color:#faf5df;padding:clamp(32px,6vw,82px) max(6vw,calc((100vw - 1050px)/2));border-bottom:5px solid #bd9a60}header p{color:#d2dfcd;margin:.4em 0}h1,h2,h3{line-height:1.35}h1,h2{font-family:"Songti SC","STSong",serif}h1{font-size:clamp(32px,6vw,68px);margin:.12em 0 .18em}header small{font:600 13px/1.4 var(--mono);letter-spacing:.12em;color:#ded2a9}
+.layout{max-width:1100px;padding:32px 24px 80px;margin:auto;display:grid;grid-template-columns:178px minmax(0,1fr);gap:clamp(20px,5vw,72px)}nav{position:sticky;top:24px;align-self:start;display:grid;border-top:2px solid var(--green)}nav a{padding:9px 4px;border-bottom:1px solid var(--line);text-decoration:none}nav a:hover{background:var(--soft)}section{padding:16px 0 27px;border-bottom:1px solid var(--line);scroll-margin-top:12px}h2{font-size:clamp(26px,3vw,36px);margin:0 0 14px}h3{font-size:18px;margin:20px 0 6px}p{margin:8px 0}ol,ul{padding-left:1.55em}li{margin:.5em 0}strong{color:#174a35}.note{background:var(--soft);padding:13px 17px;border-left:3px solid #617d56;margin:14px 0}.command{display:flex;align-items:flex-start;gap:10px;background:#20372f;border-radius:6px;margin:10px 0;color:#fff}.command pre{margin:0;flex:1;white-space:pre-wrap;overflow-wrap:anywhere;color:inherit;padding:13px 15px}.command button{display:none;font:inherit;font-size:12px;color:#fff;background:transparent;border:1px solid #84998d;border-radius:4px;padding:3px 8px;margin:9px;cursor:pointer}.js .command button{display:block}code,pre{font-family:var(--mono);font-size:.88em}p code,li code{overflow-wrap:anywhere;background:#e8e7dd;padding:2px 4px;border-radius:3px}details{border-top:1px solid var(--line);padding:9px 0}summary{cursor:pointer;font-weight:600}footer{font-size:14px;color:#516457;margin-top:18px}
+@media(max-width:720px){.layout{display:block;padding:16px 19px 48px}nav{position:static;display:flex;gap:4px 13px;flex-wrap:wrap;margin-bottom:14px}nav a{font-size:14px}header{padding:30px 20px}section{padding-top:20px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{nav,.command button{display:none!important}.layout{display:block}header{padding:12px;color:#111;background:white}header p,header small{color:#333}.command{background:#eee;color:#111}}
+</style>
+</head>
+<body>
+<header><small>REVERSE: 1999 &nbsp; / &nbsp; macOS</small><h1>Mac 安装手册</h1><p>从一台没有 PlayCover 的 Mac，到在「应用程序」里双击《重返未来：1999》。</p></header>
+<div class="layout"><nav aria-label="手册目录">
+<a href="#prepare">开始前</a><a href="#tools">安装工具</a><a href="#import">导入游戏</a><a href="#launch">部署与启动</a><a href="#use">登录与更新</a><a href="#remove">彻底卸载</a>
+</nav><main>
+<section id="prepare"><h2>开始前</h2>
+<p>打开苹果菜单  →「关于本机」，确认芯片是 Apple M 系列。项目的实测组合是 <strong>macOS 26.x、PlayCover 3.1.0、国服 4.0.0（build 210）</strong>。首次进入游戏可能还要下载约 22 GB 资源，制作导入包也需要临时磁盘空间。</p>
+<div class="note"><strong>已经 clone 好了？</strong> 保留这个仓库文件夹。后面提到的 <code>安装.command</code> 就在本页旁边，回到 Finder 双击即可。第一次装从下一节开始；要先清掉旧环境，跳到<a href="#remove">彻底卸载</a>。</div>
+<p><strong>先准备游戏版本。</strong>2026 年 11 月 24 日核对时，国服商店返回的是 4.1.0。全新 Mac 需要自己持有兼容版本的游戏副本，或等项目适配当前商店版。本机刚做过完整卸载时，可在废纸篓的 <code>R1999-卸载-…/Applications</code> 找到原有的 <code>重返未来：1999.app</code>，将它拖回 Finder 的「应用程序」，然后从下节安装 PlayCover。系统可能要求管理员确认。这里取回的是 App Store 安装文件，游戏资源会在重装后重新下载。<a href="https://apps.apple.com/cn/app/id1611712418">国服 App Store 页面</a></p>
+<details><summary>怎样在仓库目录打开终端？</summary><p>按 ⌘ 空格，搜索并打开「终端」。输入 <code>cd</code> 和一个空格，把 Finder 中的仓库文件夹拖进终端，按回车。再输入 <code>./r1999 --help</code>，看到用法即表示目录正确。</p></details>
+</section>
+<section id="tools"><h2>安装工具</h2>
+<ol><li><strong>装苹果命令行工具。</strong> 打开「终端」，粘贴下面一行并按回车。在系统弹窗中点「安装」，等它完成。如果提示已经安装，继续下一步。
+<div class="command"><pre>xcode-select --install</pre></div></li>
+<li><strong>装 PlayCover。</strong> 打开发行页，在 Assets 中下载 <code>PlayCover_3.1.0.dmg</code>。双击磁盘映像，把 PlayCover 拖到「应用程序」。然后从「应用程序」打开它，直到看见应用资料库。<a href="https://github.com/PlayCover/PlayCover/releases/tag/3.1.0">PlayCover 3.1.0 发行页</a> · <a href="https://docs.playcover.io/getting_started/download_playcover">官方安装图解</a></li></ol></section>
+<section id="import"><h2>导入游戏</h2>
+<h3>从 Mac App Store 安装的国服游戏开始</h3>
+<ol><li>如已取回原有 4.0.0 游戏，跳到下一步。商店提供兼容版本时，在 Mac App Store 用自己的 Apple ID 搜索「重返未来：1999」，选择国服 iPad 版并安装。等 Finder 的「应用程序」里出现 <strong>重返未来：1999</strong>。</li>
+<li>在仓库文件夹双击 <strong>安装.command</strong>。看到「将从你的 App Store 游戏副本准备本机导入包」后按回车。它会读取游戏版本、编译项目并在仓库的 <code>build</code> 文件夹生成 <code>国服-本机导入.ipa</code>。这个文件仅供本人在本机导入。</li>
+<li>Finder 会选中新生成的文件。把它拖到 <strong>PlayCover 的应用资料库</strong>，等游戏图标出现。右键游戏打开设置，保存一次，以便下一步配置登录输入。</li></ol>
+<div class="note"><strong>如果商店提供的是新版本：</strong>准备程序会显示实际 build。当前仓库只为 build 210 提供这条本机打包路径；需要对应版本的适配才能继续。</div>
+<details><summary>我已经有可导入的 IPA，或者 PlayCover 已经装好了游戏</summary><p>把自己已有的兼容国服 IPA 拖进 PlayCover，等游戏出现在资料库，再进入下一节。如果图标已经存在，直接进入下一节即可。普通 App Store 下载的加密 IPA 不能直接拖入使用。<a href="https://docs.playcover.io/getting_started/download_ipa.html">PlayCover 官方导入说明</a></p></details>
+</section>
+<section id="launch"><h2>部署与启动</h2>
+<ol><li>如果游戏正在运行，按 ⌘Q 退出。回到仓库，再次双击 <strong>安装.command</strong>。这次它会显示「已经找到 PlayCover 中的游戏」，按回车开始部署。</li>
+<li>等终端出现 <strong>「安装完成」</strong>。打开 Finder →「应用程序」→ <strong>重返未来：1999（PlayCover）</strong>。可把这个入口拖到 Dock，之后直接点它启动。</li>
+<li>看到游戏窗口后，点登录页的手机号框试着输入。文字出现、光标能够移动，就完成了。</li></ol>
+<details><summary>双击脚本没有运行，或终端里出现红色报错</summary><p>先在仓库目录打开终端，运行下面的命令查看完整提示。如果提示缺少 PlayTools，请在 PlayCover 的游戏设置中启用 PlayTools，重新导入游戏，再运行安装程序。</p><div class="command"><pre>bash ./安装.command</pre></div></details>
+</section>
+<section id="use"><h2>登录与更新</h2>
+<h3>账号框点不进去</h3><p>完全退出游戏，在 PlayCover 打开该游戏的设置，保存一次。在仓库目录依次运行以下命令。重新打开后再点手机号框。</p>
+<div class="command"><pre>./r1999 controls native &amp;&amp; ./r1999 start</pre></div>
+<p>需要恢复 PlayCover 键位时，退出游戏，运行 <code>./r1999 controls mapped</code> 后重启。</p>
+<h3>更新项目补丁</h3><p>退出游戏，在仓库目录运行下面一行。它会拉取当前分支并重新部署。成功后从原来的 Finder 入口启动。</p><div class="command"><pre>./r1999 update</pre></div>
+<h3>更新游戏本体</h3><p>先确认新游戏版本有对应补丁，再将自己的新版兼容 IPA 导入 PlayCover，退出游戏并运行 <code>./r1999 update</code>。若提示版本不兼容，记录游戏版本并等待适配。仅想检查当前组件和签名时运行 <code>./r1999 verify</code>。</p></section>
+<section id="remove"><h2>彻底卸载</h2><p>要从头重装，先确认账号可以重新登录。以下步骤会清掉本地资源和登录状态，重装后需要重新下载。想保留其他 PlayCover 游戏时，保留共享的 PlayCover 容器和 PlayTools。</p>
+<ol><li><strong>退出并移除入口。</strong>按 ⌘Q 退出游戏。在仓库目录运行下方命令。它仅移除本项目建立的 Finder 链接。
+<div class="command"><pre>./r1999 uninstall</pre></div></li>
+<li><strong>移除游戏及其数据。</strong>在 PlayCover 资料库右键该游戏，选卸载；如果出现数据保留选项，选择删除游戏数据。退出 PlayCover。在 Finder「应用程序」中将 App Store 原版移到废纸篓，并从 Dock 移除旧入口。</li>
+<li><strong>移除 PlayCover。</strong>将「应用程序」里的 PlayCover 移到废纸篓。如果装在个人应用程序目录，按 ⇧⌘G，输入 <code>~/Applications</code>，找到对应应用。</li>
+<li><strong>清掉共享组件和项目数据。</strong>在 Finder 按 ⇧⌘G，逐项前往下面列出的路径，核对名称后将对应项目移到废纸篓。已有其他 PlayCover 游戏时，第一行容器包含它们的安装包与设置。</li></ol>
+<details open><summary>查找本地残留</summary><ul>
+<li>PlayCover 共用：<code>~/Library/Containers/io.playcover.PlayCover</code>、<code>~/Library/Frameworks/PlayTools.framework</code>。</li>
+<li>国服数据：前往 <code>~/Library/Containers</code>，在 Finder 核对游戏名称。macOS 有时给容器分配 UUID，应按名称核实归属。前往 <code>~/Documents</code> 检查游戏写入的 <code>ResLib</code>、<code>logicLog</code>、<code>logicLog.old</code> 和 <code>XfPayReport.sqlite</code>。</li>
+<li>缓存和偏好：在 <code>~/Library/Caches</code>、<code>~/Library/Preferences</code>、<code>~/Library/HTTPStorages</code> 和 <code>~/Library/WebKit</code> 中，检查与 <code>com.bluepoch.m.reverse1999</code> 或 <code>io.playcover.PlayCover</code> 对应的项目。</li>
+<li>旧副本和安装包：检查 <code>~/Library/Application Support/r1999/Backups.noindex</code>、仓库内的 <code>build</code>、下载目录中的 DMG 和自己生成的 IPA。要继续使用本手册可保留仓库源码。</li></ul></details>
+<p>现在可以回到<a href="#tools">安装工具</a>重新开始。移到废纸篓的文件仍占磁盘空间；确认无需恢复后，再从废纸篓删除本次卸载的项目。</p></section>
+<footer><a href="README.md">仓库说明与版本兼容性</a> · <a href="#prepare">回到开头 ↑</a></footer>
+</main></div>
+<script>
+document.documentElement.classList.add('js');
+for (const box of document.querySelectorAll('.command')) {
+  const button = document.createElement('button');
+  button.type = 'button'; button.textContent = '复制'; box.append(button);
+  button.addEventListener('click', async () => {
+    const pre = box.querySelector('pre');
+    try { await navigator.clipboard.writeText(pre.textContent); button.textContent = '已复制'; }
+    catch { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); button.textContent = '按 ⌘C'; }
+    setTimeout(() => { button.textContent = '复制'; }, 2000);
+  });
+}
+</script></body></html>
