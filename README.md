@@ -118,18 +118,18 @@ ZProj.ScreenAdaption（纯代码静态类，不在任何 AssetBundle 里）
 
 ## 4. 快速开始
 
+先装好 PlayCover 和 Xcode Command Line Tools，在 PlayCover 中导入游戏一次。已经导入的副本可直接复用。以下命令在仓库目录运行，仅部署到 PlayCover 容器。
+
 ```bash
-# 1. 装 PlayCover  https://github.com/PlayCover/PlayCover/releases
-# 2. 从你已安装的 app 打一个 IPA，导入 PlayCover（游戏免费，App Store 直接下）
-#    PlayCover 会生成：
-#    ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.reverse1999.app
-# 3. 装补丁
-./build.sh --all
-# 4. 启动
-open ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.reverse1999.app
+./r1999 deploy          # 编译、检查游戏版本、补齐输入插件并签名部署
+./r1999 start           # 启动现有游戏
+./r1999 verify          # 检查组件、签名和链接
+./r1999 update          # 快进更新当前 Git 分支，然后重新部署
 ```
 
-`build.sh --verify` 会自检：原版段布局 / 阈值字节是否匹配 / 已部署壳的签名与弱链接。
+**登录框点不进去时**，先完全退出游戏，执行 `./r1999 controls native`，再执行 `./r1999 start`。点击账号框，观察是否出现光标，再切换到密码框。这个模式关闭该游戏的 PlayCover 按键映射，让 Mac Catalyst 直接处理点击和键盘事件。要恢复游戏键位，退出游戏后执行 `./r1999 controls mapped` 并重新启动。
+
+游戏本体升级后，先在 PlayCover 导入新版本，再执行 `./r1999 deploy`。部署会检查现有窗口补丁对应的字节，在同一卷的临时副本中签名，校验成功后替换游戏包。
 
 ---
 
@@ -137,7 +137,7 @@ open ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.rev
 
 | # | 问题 | 影响 | 状态 |
 |---|---|---|---|
-| 1 | **游戏内文本框收不到键盘输入** | 登录请用**扫码**；改名、搜索等输入场景受影响。输入框在游戏里占比很小 | 已知。PlayTools 的 `UITextField` → `UITextInput` 桥在 macCatalyst 下失效，需要在壳里补一层 `insertText:` 转发（v0.2） |
+| 1 | 登录时账号或密码框无法获得焦点 | 鼠标点击后无法输入 | 本机 PlayCover 3.1.0 切换到第 4 节的原生点击模式后，已确认手机号框能获得焦点并输入 |
 | 2 | 16:10 全屏仍有约 5% 上下黑边 | 屏幕 3024×1964 (1.539) ≠ 设计 16:9 (1.778) | 窗口拖成 16:9 即零黑边；16:10 满屏需改 Camera aspect（v0.2） |
 | 3 | 120Hz 未验证 | 屏幕支持 ProMotion，但游戏可能自设 `Application.targetFrameRate=60` 覆盖掉 hook | v0.2 |
 | 4 | 首次启动要全量下载 ~22 GB | PlayCover 的 app 是独立容器 | 正常。原版已下的资源受 TCC 隔离，无法直接复用 |

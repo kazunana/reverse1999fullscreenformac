@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+root="$(cd "$(dirname "$0")" && pwd)"
+app="${PC_APP:-${PLAYCOVER_HOME:-$HOME/Library/Containers/io.playcover.PlayCover}/Applications/${BUNDLE_ID:-com.bluepoch.m.reverse1999}.app}"
+case "${1:-help}" in
+    deploy) exec "$root/build.sh" --all ;;
+    start) [[ -d "$app" ]] || { echo "请先用 PlayCover 导入游戏" >&2; exit 1; }
+           exec open "$app" ;;
+    update) git -C "$root" pull --ff-only
+            exec "$root/build.sh" --all ;;
+    controls)
+        settings="${PLAYCOVER_HOME:-$HOME/Library/Containers/io.playcover.PlayCover}/App Settings/${BUNDLE_ID:-com.bluepoch.m.reverse1999}.plist"
+        [[ -f "$settings" ]] || { echo "请先在 PlayCover 保存一次游戏设置" >&2; exit 1; }
+        case "${2:-status}" in
+            native) enabled=false ;;
+            mapped) enabled=true ;;
+            status) exec plutil -extract keymapping raw "$settings" ;;
+            *) echo "用法: ./r1999 controls {native|mapped|status}" >&2; exit 2 ;;
+        esac
+        plutil -replace keymapping -bool "$enabled" "$settings"
+        echo "按键映射已设为 ${enabled}，完全退出游戏后重新启动生效。"
+        ;;
+    verify) exec "$root/build.sh" --verify ;;
+    -h|--help|help) echo "用法: ./r1999 {deploy|start|update|verify|controls {native|mapped|status}}" ;;
+    *) echo "未知命令: $1" >&2; exit 2 ;;
+esac

@@ -118,18 +118,16 @@ With the threshold enlarged, `(rate − 1) > threshold` is always false → the 
 
 ## 4. Quick start
 
+Install PlayCover and the Xcode Command Line Tools, then import the game once in PlayCover. From this checkout run:
+
 ```bash
-# 1. Install PlayCover  https://github.com/PlayCover/PlayCover/releases
-# 2. Build an IPA from your installed copy, then import it into PlayCover (the game is free)
-#    PlayCover will create:
-#    ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.reverse1999.app
-# 3. Install the patch
-./build.sh --all
-# 4. Launch
-open ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.reverse1999.app
+./r1999 deploy
+./r1999 start
+./r1999 verify
+./r1999 update
 ```
 
-`build.sh --verify` self-checks: the original segment layout / whether the threshold bytes match / the signature and weak linkage of the deployed shell.
+Update fast-forwards the current branch and redeploys. For a game update, import the new game in PlayCover and run `./r1999 deploy`. If clicking a login field fails to focus it, quit the game, run `./r1999 controls native`, then restart. This disables PlayCover keymapping for this game. To restore it, quit, run `./r1999 controls mapped` and restart.
 
 ---
 
@@ -137,7 +135,7 @@ open ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.rev
 
 | # | Issue | Impact | Status |
 |---|---|---|---|
-| 1 | **In-game text fields receive no keyboard input** | Sign in with **QR code scanning**; renaming, searching and other input flows are affected. Text fields are a very small part of the game | Known. PlayTools' `UITextField` → `UITextInput` bridge fails under macCatalyst; the shell needs an `insertText:` forwarding layer (v0.2) |
+| 1 | Account or password field cannot gain focus | Login input is unavailable | With native controls enabled (section 4), the phone number field accepted focus and typing on PlayCover 3.1.0. |
 | 2 | 16:10 fullscreen still has about 5% black bars at top and bottom | Screen 3024×1964 (1.539) ≠ design 16:9 (1.778) | Drag the window to 16:9 for zero black bars; a fullscreen 16:10 screen needs a Camera aspect change (v0.2) |
 | 3 | 120Hz not verified | The screen supports ProMotion, but the game may set its own `Application.targetFrameRate=60` and override the hook | v0.2 |
 | 4 | First launch requires a full download of ~22 GB | PlayCover's app is an independent container | Normal. Resources already downloaded by the official app are TCC-isolated and cannot be reused directly |

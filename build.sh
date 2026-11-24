@@ -94,8 +94,7 @@ do_build() {
             -Wl,-rpath,"${PLAYTOOLS_FW_DIR}"
         )
     else
-        warn "没找到 ${PLAYTOOLS_FW_DIR}/PlayTools.framework —— 先跑一次 PlayCover 让它落盘，"
-        warn "否则产物缺少 PlayTools 弱链接（鼠标点击会失效，shell.m 的 dlopen 兜底可救急）。"
+        die "没找到 ${PLAYTOOLS_FW_DIR}/PlayTools.framework —— 先跑一次 PlayCover 让它落盘，"
     fi
 
     clang "${BUILD_DIR}/entry.o" "${BUILD_DIR}/shell.o" -o "$OUT_EXEC" \
@@ -111,13 +110,13 @@ do_build() {
     say "自检:"
     otool -L "$OUT_EXEC" | sed 's/^/    /'
     local entryoff
-    entryoff=$(otool -l "$OUT_EXEC" | awk '/LC_MAIN/{f=1} f&&/entryoff/{print $2; exit}')
+    entryoff=$(otool -l "$OUT_EXEC" | awk '/LC_MAIN/{f=1} f&&/entryoff/{print $2; f=0}')
     printf "    LC_MAIN entryoff = %s (0x%x)\n" "$entryoff" "$((entryoff))"
-    printf "    _main 反汇编: "; otool -tvV "$OUT_EXEC" | awk '/^_main:/{getline; print; exit}'
+    printf "    _main 反汇编: "; otool -tvV "$OUT_EXEC" | awk '/^_main:/{getline; print}'
     printf "    体积: "; ls -l "$OUT_EXEC" | awk '{print $5" 字节"}'
 
     local plat
-    plat=$(otool -l "$OUT_EXEC" | awk '/LC_BUILD_VERSION/{f=1} f&&/platform/{print $2; exit}')
+    plat=$(otool -l "$OUT_EXEC" | awk '/LC_BUILD_VERSION/{f=1} f&&/platform/{print $2; f=0}')
     [ "$plat" = "6" ] && say "platform=6 (MACCATALYST) ✅" \
                       || warn "platform=${plat}，期望 6 (MACCATALYST)；PlayCover 导入时会自己改，但直接跑需确认"
 }
@@ -128,47 +127,7 @@ do_deploy() {
     [ -d "$PC_APP" ] || die "PlayCover app 目录不存在: ${PC_APP}（先用 PlayCover 导入 IPA）"
     need_file "$OUT_EXEC"
 
-    local exec_name
-    exec_name=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "${PC_APP}/Info.plist" 2>/dev/null || echo "1999")
-    local dest="${PC_APP}/${exec_name}"
-    say "部署目标: ${dest}"
-
-    # 备份旧可执行（第一次部署时是 PlayCover 注入过的原生壳）
-    if [ -f "$dest" ] && [ ! -f "${dest}${BAK_SUFFIX}" ]; then
-        cp -p "$dest" "${dest}${BAK_SUFFIX}"
-        say "已备份原壳 -> ${dest}${BAK_SUFFIX}"
-    fi
-
-    # 先写到临时文件再 mv：TCC / LaunchServices 下直接覆盖容易 EPERM
-    local tmp="${PC_APP}/.${exec_name}.new.$$"
-    cp "$OUT_EXEC" "$tmp"
-    chmod 755 "$tmp"
-    mv -f "$tmp" "$dest"
-    say "已替换可执行文件"
-
-    say "重签可执行"
-    codesign --force --sign - "$dest"
-
-    # 框架层也顺手补签（PlayCover 通常已签；这一步是幂等的保险）
-    find "${PC_APP}/Frameworks" -maxdepth 2 -name "*.framework" -type d 2>/dev/null | while read -r fw; do
-        codesign --force --sign - "$fw" >/dev/null 2>&1 || true
-    done
-
-    say "重签 app bundle"
-    codesign --force --sign - "$PC_APP"
-
-    say "签名校验"
-    codesign -vv "$PC_APP" 2>&1 | sed 's/^/    /' || warn "codesign -vv 有告警（ad-hoc 签名常见，能跑就行）"
-
-    cat <<EOF
-
-$(say "完成")
-    启动方式: 打开 PlayCover，双击「${APP_NAME}」
-    观察日志: log stream --predicate 'process == "${exec_name}"' --level debug
-              或直接看 stderr: PlayCover 里设置「Open Terminal on Launch」
-    回滚:     cp -p "${dest}${BAK_SUFFIX}" "${dest}" && codesign --force --sign - "$PC_APP"
-
-EOF
+    python3 "${SRC_DIR}/deploy.py" "$PC_APP" "$OUT_EXEC" "$BUNDLE_ID"
 }
 
 # ============================== 自检 ==============================
@@ -181,11 +140,11 @@ do_verify() {
         warn "原件不在 ${ORIG_EXEC}"
     fi
 
+    need_file "$PC_APP/Info.plist"
     local uf="${PC_APP}/Frameworks/UnityFramework.framework/UnityFramework"
     if [ -f "$uf" ]; then
         say "PlayCover 包里的 UnityFramework"
         printf "    flags  : "; otool -hv "$uf" | awk 'NR==4{for(i=7;i<=NF;i++) printf "%s ", $i; print ""}'
-        if otool -hv "$uf" | grep -q CRYPTID; then printf "    cryptid: 非 0（被加密，异常）\\n"; else printf "    cryptid: 0（明文，正常）\\n"; fi
         printf "    阈值处字节 (@%s): " "$OFF_THRESHOLD"
         xxd -s $((OFF_THRESHOLD)) -l 4 -p "$uf"
         printf "      说明: %s = 原版 0.01f；%s = 已改 0.7537f（壳在运行时改，磁盘上应保持原版）\n" \
@@ -193,17 +152,21 @@ do_verify() {
         printf "    设计分辨率 (@%s): " "$OFF_DESIGN"
         xxd -s $((OFF_DESIGN)) -l 8 "$uf" | awk '{print $2" "$3}'
     else
-        warn "找不到 ${uf}"
+        die "找不到 ${uf}"
     fi
 
+    need_file "${PLAYTOOLS_FW_DIR}/PlayTools.framework/PlayTools"
+    need_file "${PC_APP}/PlugIns/AKInterface.bundle/Contents/MacOS/AKInterface"
     say "已部署的壳"
     local exec_name
     exec_name=$(/usr/libexec/PlistBuddy -c "Print :CFBundleExecutable" "${PC_APP}/Info.plist" 2>/dev/null || echo "1999")
+    need_file "${PC_APP}/${exec_name}"
     if [ -f "${PC_APP}/${exec_name}" ]; then
         otool -L "${PC_APP}/${exec_name}" | sed 's/^/    /'
         codesign -dv "${PC_APP}/${exec_name}" 2>&1 | sed 's/^/    /'
     fi
 
+    codesign --verify --strict "$PC_APP" || die "游戏包签名校验失败"
     say "Info.plist 关键键"
     for k in CADisableMinimumFrameDurationOnPhone CADisableMinimumFrameDuration UIRequiresFullScreen; do
         printf "    %-38s = %s\n" "$k" \

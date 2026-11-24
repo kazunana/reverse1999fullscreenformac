@@ -118,18 +118,16 @@ ZProj.ScreenAdaption（純粋なコードの静的クラスで、どの AssetBun
 
 ## 4. クイックスタート
 
+PlayCover と Xcode Command Line Tools を用意し、PlayCover にゲームを一度インポートしてください。リポジトリのディレクトリで次のコマンドを使えます。
+
 ```bash
-# 1. PlayCover をインストール  https://github.com/PlayCover/PlayCover/releases
-# 2. インストール済みの app から IPA を作成し、PlayCover にインポート（ゲームは無料）
-#    PlayCover が次のディレクトリを生成します：
-#    ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.reverse1999.app
-# 3. パッチをインストール
-./build.sh --all
-# 4. 起動
-open ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.reverse1999.app
+./r1999 deploy
+./r1999 start
+./r1999 verify
+./r1999 update
 ```
 
-`build.sh --verify` は、元のセグメント配置 / しきい値のバイト列が一致しているか / デプロイ済みシェルの署名と弱リンクを自己検査します。
+`update` は現在のブランチを早送り更新し、再配置します。ゲーム本体を更新したら PlayCover に再インポートし、`./r1999 deploy` を実行します。ログイン欄をクリックしてもフォーカスできない場合は、ゲームを終了し、`./r1999 controls native` を実行して再起動してください。このゲームのキーマッピングが無効になります。元に戻すには、終了後に `./r1999 controls mapped` を実行して再起動します。
 
 ---
 
@@ -137,7 +135,7 @@ open ~/Library/Containers/io.playcover.PlayCover/Applications/com.bluepoch.m.rev
 
 | # | 問題 | 影響 | 状態 |
 |---|---|---|---|
-| 1 | **ゲーム内のテキストボックスがキーボード入力を受け付けない** | ログインは**QR コードの読み取り**で行ってください。名前変更や検索など、入力が必要な場面に影響します。入力欄はゲーム内でごく僅かな割合です | 既知。PlayTools の `UITextField` → `UITextInput` ブリッジが macCatalyst では機能しないため、シェル側に `insertText:` の転送層を追加する必要があります（v0.2） |
+| 1 | アカウント・パスワード欄にフォーカスできない | ログイン時の入力に影響 | PlayCover 3.1.0 の実機で、第4節のネイティブ入力モードに切り替えた後、電話番号欄のフォーカスと入力を確認 |
 | 2 | 16:10 のフルスクリーンでは上下に約 5% の黒帯が残る | 画面 3024×1964（1.539）≠ 設計 16:9（1.778） | ウィンドウを 16:9 にドラッグすれば黒帯ゼロ。16:10 で画面いっぱいに使うには Camera aspect の変更が必要（v0.2） |
 | 3 | 120Hz は未検証 | 画面は ProMotion に対応しているが、ゲームが `Application.targetFrameRate=60` を独自に設定して hook を上書きしている可能性がある | v0.2 |
 | 4 | 初回起動時に約 22 GB の全量ダウンロードが必要 | PlayCover の app は独立したコンテナである | 正常です。正規版でダウンロード済みのリソースは TCC で分離されているため、そのまま流用できません |
