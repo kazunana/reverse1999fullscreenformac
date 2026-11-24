@@ -33,6 +33,12 @@ if [[ ! -f "$app/Info.plist" ]]; then
     mkdir "$work/Payload"
     /usr/bin/ditto "$original" "$work/Payload/1999.app"
     python3 patch_ipa.py "$work/Payload/1999.app" --shell "${OUT_EXEC:-${BUILD_DIR:-build}/1999}"
+    # The iOS push notification extension is not used by the Mac game.
+    # Keep the original App Store bundle intact and omit it from the import copy.
+    plugin="$work/Payload/1999.app/PlugIns/Unity-TPNSExtension.appex"
+    if [[ -d "$plugin" ]]; then
+        mv "$plugin" "$work/"
+    fi
     /usr/bin/ditto -c -k --norsrc --keepParent "$work/Payload" "$work/国服-本机导入.ipa"
     mv -f "$work/国服-本机导入.ipa" build/
     echo "已生成 build/国服-本机导入.ipa。将它拖入 PlayCover，等游戏图标出现后，再双击一次「安装.command」。"

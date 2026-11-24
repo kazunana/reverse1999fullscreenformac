@@ -29,7 +29,7 @@ header{background:#183a30;color:#faf5df;padding:clamp(32px,6vw,82px) max(6vw,cal
 <section id="import"><h2>导入游戏</h2>
 <h3>从 Mac App Store 安装的国服游戏开始</h3>
 <ol><li>如已取回原有 4.0.0 游戏，跳到下一步。商店提供兼容版本时，在 Mac App Store 用自己的 Apple ID 搜索「重返未来：1999」，选择国服 iPad 版并安装。等 Finder 的「应用程序」里出现 <strong>重返未来：1999</strong>。</li>
-<li>在仓库文件夹双击 <strong>安装.command</strong>。看到「将从你的 App Store 游戏副本准备本机导入包」后按回车。它会读取游戏版本、编译项目并在仓库的 <code>build</code> 文件夹生成 <code>国服-本机导入.ipa</code>。这个文件仅供本人在本机导入。</li>
+<li>在仓库文件夹双击 <strong>安装.command</strong>。看到「将从你的 App Store 游戏副本准备本机导入包」后按回车。它会读取游戏版本、编译项目并在仓库的 <code>build</code> 文件夹生成 <code>国服-本机导入.ipa</code>。Mac 导入副本省略了 iOS 推送通知扩展。这个文件仅供本人在本机导入。</li>
 <li>Finder 会选中新生成的文件。把它拖到 <strong>PlayCover 的应用资料库</strong>，等游戏图标出现。右键游戏打开设置，保存一次，以便下一步配置登录输入。</li></ol>
 <div class="note"><strong>如果商店提供的是新版本：</strong>准备程序会显示实际 build。当前仓库只为 build 210 提供这条本机打包路径；需要对应版本的适配才能继续。</div>
 <details><summary>我已经有可导入的 IPA，或者 PlayCover 已经装好了游戏</summary><p>把自己已有的兼容国服 IPA 拖进 PlayCover，等游戏出现在资料库，再进入下一节。如果图标已经存在，直接进入下一节即可。普通 App Store 下载的加密 IPA 不能直接拖入使用。<a href="https://docs.playcover.io/getting_started/download_ipa.html">PlayCover 官方导入说明</a></p></details>
